@@ -36,9 +36,9 @@ func validateJSON(content []byte, jsonSchema bool) error {
 }
 
 func escapeStr(content string) string {
-    content = strings.Replace(content, "\\", "\\\\", -1)
-    content = strings.Replace(content, "\"", "\\\"", -1)
-    return content
+	content = strings.Replace(content, "\\", "\\\\", -1)
+	content = strings.Replace(content, "\"", "\\\"", -1)
+	return content
 }
 
 func main() {
@@ -48,8 +48,8 @@ func main() {
 
 	args := flag.Args()
 	if len(args) == 0 {
-	    log.Fatal("Error: no input file listed")
-    }
+		log.Fatal("Error: no input file listed")
+	}
 
 	fileName := args[0]
 	if !isJSONFile(fileName) {
@@ -69,7 +69,7 @@ func main() {
 	contentStr = strings.Replace(contentStr, "\n", "", -1)
 	contentStr = strings.Replace(contentStr, " ", "", -1)
 	if *escapedStringPtr {
-	    contentStr = escapeStr(contentStr)
-    }
+		contentStr = escapeStr(contentStr)
+	}
 	fmt.Println(contentStr)
 }
