@@ -24,7 +24,7 @@ func validateJSON(content []byte, jsonSchema bool) error {
 	if jsonSchema {
 		err := json.Unmarshal(content, &jObj)
 		if err != nil {
-			return err
+			return fmt.Errorf("invalid json schema, %v", err)
 		}
 	} else {
 		err := json.Unmarshal(content, &j)
@@ -56,20 +56,22 @@ func main() {
 		log.Fatalf("Error: extension of the input file '%s' is not json", fileName)
 	}
 
-	content, err := ioutil.ReadFile(fileName)
+	bytes, err := ioutil.ReadFile(fileName)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error: %v", err)
 	}
 
-	if err = validateJSON(content, *schemaPtr); err != nil {
+	if err = validateJSON(bytes, *schemaPtr); err != nil {
 		log.Fatalf("Invalid json file '%s', error: %v", fileName, err)
 	}
 
-	contentStr := string(content)
-	contentStr = strings.Replace(contentStr, "\n", "", -1)
-	contentStr = strings.Replace(contentStr, " ", "", -1)
+	var i interface{}
+	json.Unmarshal(bytes, &i)
+	bytes, _ = json.Marshal(i)
+	str := string(bytes)
+
 	if *escapedStringPtr {
-		contentStr = escapeStr(contentStr)
+		str = escapeStr(str)
 	}
-	fmt.Println(contentStr)
+	fmt.Println(str)
 }
