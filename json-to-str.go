@@ -17,24 +17,6 @@ func isJSONFile(fileName string) bool {
 	return false
 }
 
-func validateJSON(content []byte, jsonSchema bool) error {
-	var jObj map[string]interface{}
-	var j interface{}
-
-	if jsonSchema {
-		err := json.Unmarshal(content, &jObj)
-		if err != nil {
-			return fmt.Errorf("invalid json schema, %v", err)
-		}
-	} else {
-		err := json.Unmarshal(content, &j)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func escapeStr(content string) string {
 	content = strings.Replace(content, "\\", "\\\\", -1)
 	content = strings.Replace(content, "\"", "\\\"", -1)
@@ -42,6 +24,9 @@ func escapeStr(content string) string {
 }
 
 func main() {
+	var jObj map[string]interface{}
+	var j interface{}
+
 	schemaPtr := flag.Bool("s", false, "json file is a json schema")
 	escapedStringPtr := flag.Bool("e", false, "convert json to the escape string")
 	flag.Parse()
@@ -61,15 +46,21 @@ func main() {
 		log.Fatalf("Error: %v", err)
 	}
 
-	if err = validateJSON(bytes, *schemaPtr); err != nil {
-		log.Fatalf("Invalid json file '%s', error: %v", fileName, err)
+	if *schemaPtr {
+		err = json.Unmarshal(bytes, &jObj)
+		if err != nil {
+			log.Fatalf("Invalid json file '%s', error: invalid json schema, %v", fileName, err)
+		}
+		bytes, _ = json.Marshal(jObj)
+	} else {
+		err = json.Unmarshal(bytes, &j)
+		if err != nil {
+			log.Fatalf("Error: %v", err)
+		}
+		bytes, _ = json.Marshal(j)
 	}
 
-	var i interface{}
-	json.Unmarshal(bytes, &i)
-	bytes, _ = json.Marshal(i)
 	str := string(bytes)
-
 	if *escapedStringPtr {
 		str = escapeStr(str)
 	}
